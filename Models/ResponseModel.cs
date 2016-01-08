@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
+using AcklenAveApplication.Algorithms;
 
 namespace AcklenAveApplication.Models
 {
@@ -9,14 +7,6 @@ namespace AcklenAveApplication.Models
     {
         public IEnumerable<string> Words { get; set; }
         public double StartingFibonacciNumber { get; set; }
-        public AlgorithmType AlgorithmType { get; set; }
-    }
-
-    public enum AlgorithmType
-    {
-        ironMan,
-        captainAmerica,
-        theIncredibleHulk,
-        thor
+        public AlgorithmType Algorithm { get; set; }
     }
 }

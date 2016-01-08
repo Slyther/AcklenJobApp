@@ -7,7 +7,7 @@ using AcklenAveApplication.Models;
 
 namespace AcklenAveApplication.Interfaces
 {
-    interface IEncoder
+    public interface IEncoder
     {
         string Encode(ResponseModel model);
     }
