@@ -3,38 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web.Helpers;
 using System.Web.Http;
+using AcklenAveApplication.Entities;
+using AcklenAveApplication.Interfaces;
+using AcklenAveApplication.Models;
+using AutoMapper;
 
 namespace AcklenAveApplication.Controllers
 {
-    [Authorize]
     public class ValuesController : ApiController
     {
-        // GET api/values
-        public IEnumerable<string> Get()
+        private readonly ISecretPayloadRepository _secretPayloadRepository;
+
+        public ValuesController(ISecretPayloadRepository secretPayloadRepository)
         {
-            return new string[] { "value1", "value2" };
+            _secretPayloadRepository = secretPayloadRepository;
         }
 
-        // GET api/values/5
-        public string Get(int id)
-        {
-            return "value";
-        }
-
+        [HttpPost]
         // POST api/values
-        public void Post([FromBody]string value)
+        public void Post([FromBody]SecretPayloadRegisterModel Payload)
         {
-        }
-
-        // PUT api/values/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE api/values/5
-        public void Delete(int id)
-        {
+            var payload = Mapper.Map<SecretPayload>(Payload);
+            _secretPayloadRepository.Create(payload);
         }
     }
 }
