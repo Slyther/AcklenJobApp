@@ -11,7 +11,7 @@ namespace AcklenAveApplication.Models
         {
             EncodedValue = encodedValue;
             EmailAddress = "joseph.a.griff@gmail.com";
-            WebhookUrl = "";
+            WebhookUrl = "http://arcommsbeacon.apphb.com/api/values/";
             RepoUrl = "https://github.com/Slyther/AcklenJobApp";
         }
 
