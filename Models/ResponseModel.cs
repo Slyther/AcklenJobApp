@@ -14,4 +14,10 @@ namespace AcklenAveApplication.Models
     {
         public string Encoded { get; set; }
     }
+
+    public class PostResponseModel
+    {
+        public string Status { get; set; }
+        public string Message { get; set; }
+    }
 }

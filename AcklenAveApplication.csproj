@@ -207,6 +207,7 @@
     </Compile>
     <Compile Include="Interfaces\IEncoder.cs" />
     <Compile Include="Interfaces\ISecretPayloadRepository.cs" />
+    <Compile Include="Models\EncodedStringPostModel.cs" />
     <Compile Include="Models\ResponseModel.cs" />
     <Compile Include="Models\SecretPayloadModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

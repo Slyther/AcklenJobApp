@@ -1,14 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Threading.Tasks;
-using System.Web.Helpers;
+using System.Text;
 using System.Web.Mvc;
 using AcklenAveApplication.Algorithms;
 using AcklenAveApplication.Interfaces;
 using AcklenAveApplication.Models;
-using Microsoft.Ajax.Utilities;
 
 namespace AcklenAveApplication.Controllers
 {
@@ -50,17 +47,26 @@ namespace AcklenAveApplication.Controllers
                     encodedResponse = handler.Encode(obtainedResponseModel);
                 }
 
-                using (var client = new WebClient())
-                {
-                    client.Headers.Add(HttpRequestHeader.Accept, "application/json");
-                    var guidConcat = "encoded/" + guid + "/" + obtainedResponseModel.Algorithm.ToString("G");
-                    var json = client.DownloadString("http://internal-devchallenge-2-dev.apphb.com/" + guidConcat);
-                    EncodedResponseModel model = Newtonsoft.Json.JsonConvert.DeserializeObject<EncodedResponseModel>(json);
-                    if (model.Encoded != encodedResponse)
-                    {
-                        throw new Exception();
-                    }
-                }
+                var guidConcat2 = "values/" + guid + "/" + obtainedResponseModel.Algorithm.ToString("G");
+                var http = (HttpWebRequest) WebRequest.Create(new Uri("http://internal-devchallenge-2-dev.apphb.com/" + guidConcat2));
+                http.Accept = "application/json";
+                http.ContentType = "application/json";
+                http.Method = "POST";
+                var postModel = new EncodedStringPostModel(encodedResponse);
+                var stringifiedPostModel = Newtonsoft.Json.JsonConvert.SerializeObject(postModel);
+                byte[] bytes = Encoding.ASCII.GetBytes(stringifiedPostModel);
+
+                Stream newStream = http.GetRequestStream();
+                newStream.Write(bytes, 0, bytes.Length);
+                newStream.Close();
+
+                var response = http.GetResponse();
+                var stream = response.GetResponseStream();
+                var sr = new StreamReader(stream);
+                var content = sr.ReadToEnd();
+                var postResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<PostResponseModel>(content);
+                if (postResponse != null && postResponse.Status.ToLower().Equals("crashandburn"))
+                    i--;
             }
             return RedirectToAction("Messages");
         }
