@@ -317,10 +317,10 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
-  <Target Name="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
-    <AspNetCompiler Condition="'$(IsDesktopBuild)' == 'true'" 
+  <Target Name="AfterBuild">
+    <AspNetCompiler
 	VirtualPath="temp" PhysicalPath="$(ProjectDir)\..\$(ProjectName)" /> 
-    <AspNetCompiler Condition="'$(IsDesktopBuild)' == 'false'" 
+    <AspNetCompiler
 	VirtualPath="temp" PhysicalPath="$(OutDir)\_PublishedWebsites\$(ProjectName)" />
 </Target>
 </Project>
