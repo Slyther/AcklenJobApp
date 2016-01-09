@@ -115,32 +115,64 @@ namespace AcklenAveApplication.Algorithms
 
         public IEnumerable<string> AlternateConsonants(IEnumerable<string> array)
         {
-            bool UpperCase = false;
-            bool First = true;
-            foreach (var element in array)
+            bool upperCase = false;
+            bool first = true;
+            var toReturn = new List<string>();
+            for (int i = 0; i < array.Count(); i++)
             {
-                foreach (var character in element)
+                var element = new StringBuilder(array.ElementAt(i));
+                for (int n = 0; n < element.Length; n++)
                 {
-                    if (Consonants.Contains(char.ToLower(character)))
+                    if (Consonants.Contains(char.ToLower(element[n])))
                     {
-                        if (First)
+                        if (first)
                         {
-                            UpperCase = char.IsUpper(character);
-                            First = false;
+                            upperCase = char.IsUpper(element[n]);
+                            first = false;
                         }
                         else
                         {
-                            
+                            element[n] = upperCase ? char.ToLower(element[n]) : char.ToUpper(element[n]);
+                            upperCase = !upperCase;
                         }
                     }
                 }
+                toReturn.Add(element.ToString());
             }
-            return array;
+            return toReturn.AsEnumerable();
         }
 
         public IEnumerable<string> FibonacciMagic(IEnumerable<string> array, double startingFibonacciNumber)
         {
-            throw new NotImplementedException();
+            double previousFibonacciNumber = 0;
+            bool first = true;
+            var toReturn = new List<string>();
+            for (int i = 0; i < array.Count(); i++)
+            {
+                var element = new StringBuilder(array.ElementAt(i));
+                for (int n = 0; n < element.Length; n++)
+                {
+                    if (Vowels.Contains(char.ToLower(element[n])))
+                    {
+                        element.Remove(n, 1);
+                        element.Insert(n, (startingFibonacciNumber + previousFibonacciNumber).ToString());
+                        if (first)
+                        {
+                            previousFibonacciNumber = startingFibonacciNumber;
+                            startingFibonacciNumber += Math.Round(startingFibonacciNumber/1.618);
+                            first = false;
+                        }
+                        else
+                        {
+                            var temp = startingFibonacciNumber;
+                            startingFibonacciNumber += previousFibonacciNumber;
+                            previousFibonacciNumber = temp;
+                        }
+                    }
+                }
+                toReturn.Add(element.ToString());
+            }
+            return toReturn.AsEnumerable();
         }
     }
 }
