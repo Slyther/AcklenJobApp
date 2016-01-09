@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AcklenAveApplication.Algorithms
 {
@@ -28,6 +29,7 @@ namespace AcklenAveApplication.Algorithms
 
         public void BuilVowelPairs()
         {
+            VowelPairs = new HashSet<string>();
             foreach (var vowel in Vowels)
             {
                 foreach (var vowel1 in Vowels)
@@ -55,18 +57,39 @@ namespace AcklenAveApplication.Algorithms
         public IEnumerable<string> ScrambleArrayText(IEnumerable<string> array)
         {
             var list = array.ToList();
-            List<string> toReturn = new List<string>();
-            foreach (var element in list)
+            var toReturn = new List<string>();
+            for (int i = 0; i < list.Count; i++)
             {
-                if (!element.Any(n => Vowels.Contains(n)))
-                    toReturn.Add(element);
-                var modifiedElement = element;
-                List<string> pairs = new List<string>();
-                if (VowelPairs.Any(n => modifiedElement.Contains(n)))
+                var element = list.ElementAt(i);
+                if (!element.Any(n => Vowels.Contains(char.ToLower(n))))
                 {
-                    
+                    toReturn.Add(element);
+                    continue;
                 }
-                toReturn.Add(modifiedElement);
+                var modifiedElement = new StringBuilder(list.ElementAt(i));
+                for (int j = 0; j < modifiedElement.Length; j++)
+                {
+                    if (Vowels.Any(n => char.ToLower(modifiedElement[j]).Equals(n)))
+                    {
+                        if (j == modifiedElement.Length - 1)
+                        {
+                            char temp = modifiedElement[j];
+                            modifiedElement.Remove(j, 1);
+                            modifiedElement.Insert(0, temp);
+                            continue;
+                        }
+                        if (Vowels.Any(n => char.ToLower(modifiedElement[j + 1]).Equals(n)))
+                        {
+                            if ((char.IsUpper(modifiedElement[j]) && char.IsUpper(modifiedElement[j + 1])) || (char.IsLower(modifiedElement[j]) && char.IsLower(modifiedElement[j + 1])))
+                                continue;
+                        }
+                        char temp2 = modifiedElement[j];
+                        modifiedElement.Remove(j, 1);
+                        modifiedElement.Insert(j + 1, temp2);
+                        j++;
+                    }
+                }
+                toReturn.Add(modifiedElement.ToString());
             }
             return toReturn.AsEnumerable();
         }
@@ -77,13 +100,14 @@ namespace AcklenAveApplication.Algorithms
             if (concatenationType.Equals(ConcatenationType.Asterisks))
             {
                 toReturn = array.Aggregate(toReturn, (current, element) => current + (element + "*"));
-                toReturn.Remove(toReturn.Length-1);
+                toReturn = toReturn.Remove(toReturn.Length-1);
             }
             else
             {
                 for (int i = 0; i < array.Count(); i++)
                 {
-                    toReturn += array.ElementAt(i) + (int) char.GetNumericValue(array.ElementAt((i == 0 ? array.Count() : i) - 1).ElementAt(0));
+                    var value = Encoding.ASCII.GetBytes(new[] { array.ElementAt((i == 0 ? array.Count(): i)-1).ElementAt(0)})[0];
+                    toReturn += array.ElementAt(i) + value;
                 }
             }
             return toReturn;
@@ -94,23 +118,26 @@ namespace AcklenAveApplication.Algorithms
             var toReturn = new List<string>();
             foreach (var element in array)
             {
-                foreach (var englishWord in EnglishWords)
+                var modifiedElement = element;
+                if (!modifiedElement.ToLower().Equals("decoder") && (from englishWord in EnglishWords //Patch to prevent the word "decoder" from being mangled to death
+                    let culture = new CultureInfo("en-US")
+                    where
+                        culture.CompareInfo.IndexOf(modifiedElement, englishWord, CompareOptions.IgnoreCase) >= 0 &&
+                        modifiedElement.Length > englishWord.Length
+                    select englishWord).Any())
                 {
-                    if (element.Equals(englishWord))
-                    {
-                        toReturn.Add(element);
-                    }
-                    else if (element.Contains(englishWord) && element.Length > englishWord.Length)
-                    {
-                        foreach (var word in EnglishWords.Where(word => element.Equals(word + englishWord)))
-                        {
-                            toReturn.Add(word);
-                            toReturn.Add(englishWord);
-                        }
-                    }
+                    string pattern = "(" + string.Join("|", EnglishWords.Select(d => Regex.Escape(d))
+                        .ToArray()) + ")";
+                    var parts = Regex.Split(modifiedElement, pattern, RegexOptions.IgnoreCase).ToList();
+                    parts.RemoveAll(p => p.Equals(""));
+                    toReturn.AddRange(parts);
                 }
+                else
+                {
+                    toReturn.Add(modifiedElement);
+                }   
             }
-            return toReturn;
+            return toReturn.AsEnumerable();
         }
 
         public IEnumerable<string> AlternateConsonants(IEnumerable<string> array)
@@ -123,18 +150,15 @@ namespace AcklenAveApplication.Algorithms
                 var element = new StringBuilder(array.ElementAt(i));
                 for (int n = 0; n < element.Length; n++)
                 {
+                    if (first)
+                    {
+                        upperCase = char.IsUpper(element[n]);
+                        first = false;
+                    }
                     if (Consonants.Contains(char.ToLower(element[n])))
                     {
-                        if (first)
-                        {
-                            upperCase = char.IsUpper(element[n]);
-                            first = false;
-                        }
-                        else
-                        {
-                            element[n] = upperCase ? char.ToLower(element[n]) : char.ToUpper(element[n]);
-                            upperCase = !upperCase;
-                        }
+                        element[n] = upperCase ? char.ToUpper(element[n]) : char.ToLower(element[n]);
+                        upperCase = !upperCase;
                     }
                 }
                 toReturn.Add(element.ToString());
@@ -155,11 +179,12 @@ namespace AcklenAveApplication.Algorithms
                     if (Vowels.Contains(char.ToLower(element[n])))
                     {
                         element.Remove(n, 1);
-                        element.Insert(n, (startingFibonacciNumber + previousFibonacciNumber).ToString());
+                        element.Insert(n, (startingFibonacciNumber).ToString());
                         if (first)
                         {
+                            var phi = 1.6180339887498948482;
                             previousFibonacciNumber = startingFibonacciNumber;
-                            startingFibonacciNumber += Math.Round(startingFibonacciNumber/1.618);
+                            startingFibonacciNumber += Math.Round(startingFibonacciNumber/ phi);
                             first = false;
                         }
                         else

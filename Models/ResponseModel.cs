@@ -9,4 +9,9 @@ namespace AcklenAveApplication.Models
         public double StartingFibonacciNumber { get; set; }
         public AlgorithmType Algorithm { get; set; }
     }
+
+    public class EncodedResponseModel
+    {
+        public string Encoded { get; set; }
+    }
 }
